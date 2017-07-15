@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Week01.Models.Request;
 using Week01.Services;
 
 namespace Week01.Controllers
@@ -27,9 +28,11 @@ namespace Week01.Controllers
         }
 
         // GET: Post/Details/5
-        public ActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            return View();
+            var post = await _postService.GetPostAsync(id);
+            
+            return View(post);
         }
 
         // GET: Post/Create
@@ -41,13 +44,13 @@ namespace Week01.Controllers
         // POST: Post/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(PostPostModel model)
         {
             try
             {
-                // TODO: Add insert logic here
+                var post = await _postService.CreatePostAsync(await _sessionService.GetUserAsync(), model.Title, model.Content, model.Password);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", new {id = post.Id});
             }
             catch
             {
@@ -68,8 +71,7 @@ namespace Week01.Controllers
         {
             try
             {
-                // TODO: Add update logic here
-
+                
                 return RedirectToAction("Index");
             }
             catch
