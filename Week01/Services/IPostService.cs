@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Week01.Models.Data;
+
+namespace Week01.Services
+{
+    public interface IPostService
+    {
+        Task<Post> CreatePostAsync(User writer, string title, string content, string password);
+        Task<IEnumerable<Post>>ListPostAsync(int take = 10, int page = 0);
+        Task<Post> GetPostAsync(long id);
+        Task<Post> UpdatePostAsync(long postId, string title, string content, string password);
+        Task DeletePostAsync(long postId);
+    }
+}
