@@ -9,9 +9,15 @@ namespace Week01.Services
 {
     public class DatabaseContext : DbContext
     {
-        public DatabaseContext(DbContextOptions options) : base(options) { }
+        public DatabaseContext() : base() { }
 
         public DbSet<User> Users { get; set; }
         public DbSet<Post> Posts { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlite("Data Source=data.db");
+            base.OnConfiguring(optionsBuilder);
+        }
     }
 }

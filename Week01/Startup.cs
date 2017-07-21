@@ -38,13 +38,10 @@ namespace Week01
             services.AddDistributedMemoryCache();
             services.AddSession();
 
-            services.AddDbContext<DatabaseContext>(options =>
-            {
-                options.UseSqlite("Data Source=data.db");
-            });
+            services.AddDbContext<DatabaseContext>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+            
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<AuthorizationService, AuthorizationService>();
