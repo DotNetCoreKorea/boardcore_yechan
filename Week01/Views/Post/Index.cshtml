@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Mvc
-@model IEnumerable<Post>
+@model Post[]
 <table class="table table-striped">
     <thead>
     <tr>
@@ -14,7 +14,7 @@
     {
         <tr>
             <td>@post.Id</td>
-            <td><a href="@Url.Action(" Details", new { id=post.Id })">@post.Title</a></td><td>@post.Title</td>
+            <td><a href="@Url.Action("Details", new { id=post.Id })">@post.Title</a></td>
             <td>@(post.Writer?.NickName??post.WriterName)</td>
             <td>@post.CreatedAt.ToShortTimespan()</td>
         </tr>

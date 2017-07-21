@@ -11,14 +11,14 @@ namespace Week01.Services
     {
         private static HashSet<Post> Posts { get; set; } = new HashSet<Post>();
 
-        public async Task<Post> CreatePostAsync(User writer, string title, string content, string password)
+        public async Task<Post> CreatePostAsync(User writer, string title, string content, string password = null, string writerName = null)
         {
             var post = new Post
             {
                 Id = Posts.Count + 1,
                 Title = title,
                 Content = content,
-                Password = Crypto.HashPassword(password),
+                Password = Crypto.HashPassword(password??""),
                 Writer = writer
             };
 
@@ -27,9 +27,9 @@ namespace Week01.Services
             return post;
         }
 
-        public async Task<IEnumerable<Post>> ListPostAsync(int take = 10, int page = 0)
+        public async Task<Post[]> ListPostAsync(int take = 10, int page = 0)
         {
-            return Posts.Skip(take * page).Take(take);
+            return Posts.Skip(take * page).Take(take).ToArray();
         }
 
         public async Task<Post> GetPostAsync(long id)

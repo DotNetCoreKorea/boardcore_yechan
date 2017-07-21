@@ -28,5 +28,7 @@ namespace Week01.Services
         {
             throw new NotImplementedException();
         }
+
+        public bool IsLoggedIn => GetUserAsync().Result != null;
     }
 }

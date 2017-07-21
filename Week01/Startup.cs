@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Week01.Helpers;
 using Week01.Services;
 
 namespace Week01
@@ -33,13 +35,19 @@ namespace Week01
             // Add framework services.
             services.AddMvc();
 
+            services.AddDistributedMemoryCache();
+            services.AddSession();
+
             services.AddDbContext<DatabaseContext>(options =>
             {
                 options.UseSqlite("Data Source=data.db");
             });
 
-            services.AddScoped<IPostService, MockPostService>();
-            services.AddScoped<ISessionService, MockSessionService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<ISessionService, SessionService>();
+            services.AddScoped<AuthorizationService, AuthorizationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,7 +55,7 @@ namespace Week01
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -59,6 +67,8 @@ namespace Week01
             }
 
             app.UseStaticFiles();
+
+            app.UseSession();
 
             app.UseMvc(routes =>
             {

@@ -11,5 +11,7 @@ namespace Week01.Services
         Task<User> GetUserAsync();
         Task LoginAsync(User user);
         Task LogoutAsync();
+
+        bool IsLoggedIn { get; }
     }
 }

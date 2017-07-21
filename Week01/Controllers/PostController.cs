@@ -24,6 +24,7 @@ namespace Week01.Controllers
         public async Task<IActionResult> Index()
         {
             var posts = await _postService.ListPostAsync();
+
             return View(posts);
         }
 
@@ -48,13 +49,17 @@ namespace Week01.Controllers
         {
             try
             {
-                var post = await _postService.CreatePostAsync(await _sessionService.GetUserAsync(), model.Title, model.Content, model.Password);
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+                var post = await _postService.CreatePostAsync(await _sessionService.GetUserAsync(), model.Title, model.Content, model.Password, model.WriterName);
 
                 return RedirectToAction("Details", new {id = post.Id});
             }
             catch
             {
-                return View();
+                return View(model);
             }
         }
 
