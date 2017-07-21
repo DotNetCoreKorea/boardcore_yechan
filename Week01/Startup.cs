@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,7 @@ namespace Week01
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
+
             Configuration = builder.Build();
         }
 
@@ -30,6 +32,12 @@ namespace Week01
         {
             // Add framework services.
             services.AddMvc();
+
+            services.AddDbContext<DatabaseContext>(options =>
+            {
+                options.UseSqlite("Data Source=data.db");
+            });
+
             services.AddScoped<IPostService, MockPostService>();
             services.AddScoped<ISessionService, MockSessionService>();
         }
