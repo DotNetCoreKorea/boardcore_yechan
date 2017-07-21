@@ -9,7 +9,7 @@ namespace Week01.Services
     public interface IPostService
     {
         Task<Post> CreatePostAsync(User writer, string title, string content, string password);
-        Task<IEnumerable<Post>>ListPostAsync(int take = 10, int page = 0);
+        Task<IEnumerable<Post>> ListPostAsync(int take = 10, int page = 0);
         Task<Post> GetPostAsync(long id);
         Task<Post> UpdatePostAsync(long postId, string title, string content, string password);
         Task DeletePostAsync(long postId);

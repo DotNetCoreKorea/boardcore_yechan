@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,7 +9,11 @@ namespace Week01.Models.Data
     public class Post
     {
         public long Id { get; set; }
+
+        [DisplayName("제목")]
         public string Title { get; set; }
+
+        [DisplayName("내용")]
         public string Content { get; set; }
 
         public long? WriterId { get; set; }

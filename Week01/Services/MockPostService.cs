@@ -15,6 +15,7 @@ namespace Week01.Services
         {
             var post = new Post
             {
+                Id = Posts.Count + 1,
                 Title = title,
                 Content = content,
                 Password = Crypto.HashPassword(password),
