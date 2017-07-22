@@ -22,5 +22,7 @@ namespace Week01.Models.Request
 
         [DisplayName("작성자 이름")]
         public string WriterName { get; set; }
+
+        public string AnonymousToken { get; set; }
     }
 }

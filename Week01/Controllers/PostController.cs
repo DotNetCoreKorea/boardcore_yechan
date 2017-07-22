@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Week01.Models.Request;
 using Week01.Services;
+using Week01.Models.Data;
+using Week01.Helpers;
+using Week01.Models.View;
+using Week01.Extensions;
 
 namespace Week01.Controllers
 {
@@ -64,25 +68,100 @@ namespace Week01.Controllers
         }
 
         // GET: Post/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(long id)
         {
-            return View();
+            var post = await _postService.GetPostAsync(id);
+
+            if (post == null)
+                return RedirectToAction("Index");
+
+            var authorizedPost = HttpContext.Session.GetInt64("AuthorizedPost");
+
+            if (post.WriterId == null && authorizedPost != post.Id)
+                return RedirectToAction("EditAnonymous", new { id });
+
+            var model = new PostPostModel
+            {
+                Title = post.Title,
+                Content = post.Content,
+                Password = post.Password,
+                WriterName = post.WriterName
+            };
+
+            return View(model);
         }
 
         // POST: Post/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, PostPostModel model)
         {
             try
             {
-                
-                return RedirectToAction("Index");
+                var post = await _postService.GetPostAsync(id);
+
+                if (post == null)
+                    return RedirectToAction("Index");
+
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                var authorizedPost = HttpContext.Session.GetInt64("AuthorizedPost");
+                var user = await _sessionService.GetUserAsync();
+
+                if (post.WriterId == null && authorizedPost != post.Id)
+                    return RedirectToAction("EditAnonymous", new { id });
+
+                if (post.WriterId == user?.Id && authorizedPost == post.Id)
+                {
+                    await _postService.UpdatePostAsync(id, model.Title, model.Content, model.Password);
+                    HttpContext.Session.Remove("AuthorizedPost");
+                }
+                else
+                {
+                    return View("Error", new ErrorViewModel { Message = "수정할 권한이 없습니다", RedirectUrl = Url.Action("Index") });
+                }
+
+                return RedirectToAction("Details", new { id });
             }
             catch
             {
-                return View();
+                return View(model);
             }
+        }
+
+        public async Task<IActionResult> EditAnonymous(long id)
+        {
+            var post = await _postService.GetPostAsync(id);
+
+            if (post == null)
+                return RedirectToAction("Index");
+
+            if (post.WriterId != null)
+                return RedirectToAction("Edit", new { id });
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditAnonymous(long id, string password)
+        {
+            var post = await _postService.GetPostAsync(id);
+
+            if (post == null)
+                return RedirectToAction("Index");
+
+            if (post.WriterId != null)
+                return RedirectToAction("Edit", new { id });
+
+            if (Crypto.VerifyHashedPassword(post.Password, password))
+            {
+                HttpContext.Session.SetInt64("AuthorizedPost", id);
+            }
+
+            return RedirectToAction("Edit", new { id });
         }
 
         // GET: Post/Delete/5
