@@ -76,6 +76,10 @@ namespace Week01.Controllers
                 return RedirectToAction("Index");
 
             var authorizedPost = HttpContext.Session.GetInt64("AuthorizedPost");
+            var user = await _sessionService.GetUserAsync();
+            
+            if (post.WriterId != null && (user == null || post.WriterId != user.Id))
+                return RedirectToAction("Login", "Auth", new { returnUrl = Request.Path });
 
             if (post.WriterId == null && authorizedPost != post.Id)
                 return RedirectToAction("EditAnonymous", new { id });
@@ -165,26 +169,58 @@ namespace Week01.Controllers
         }
 
         // GET: Post/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            return View();
+            var post = await _postService.GetPostAsync(id);
+
+            if (post == null)
+                return RedirectToAction("Index");
+
+            var authorizedPost = HttpContext.Session.GetInt64("AuthorizedPost");
+            var user = await _sessionService.GetUserAsync();
+            
+
+            if (post.WriterId != null && (user == null || post.WriterId != user.Id))
+                return RedirectToAction("Login", "Auth", new { returnUrl = Request.Path });
+
+            if (post.WriterId == null && authorizedPost != post.Id)
+                return RedirectToAction("DeleteAnonymous", new { id });
+
+            await _postService.DeletePostAsync(id);
+
+            return RedirectToAction("Index");
         }
 
-        // POST: Post/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeieteAnonymous(long id)
         {
-            try
-            {
-                // TODO: Add delete logic here
+            var post = await _postService.GetPostAsync(id);
 
+            if (post == null)
                 return RedirectToAction("Index");
-            }
-            catch
+
+            if (post.WriterId != null)
+                return RedirectToAction("Delete", new { id });
+
+            return View("EditAnonymous");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeieteAnonymous(long id, string password)
+        {
+            var post = await _postService.GetPostAsync(id);
+
+            if (post == null)
+                return RedirectToAction("Index");
+
+            if (post.WriterId != null)
+                return RedirectToAction("Deiete", new { id });
+
+            if (Crypto.VerifyHashedPassword(post.Password, password))
             {
-                return View();
+                HttpContext.Session.SetInt64("AuthorizedPost", id);
             }
+
+            return RedirectToAction("Delete", new { id });
         }
     }
 }
